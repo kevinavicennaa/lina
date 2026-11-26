@@ -19,7 +19,7 @@ import { mapGetters } from 'vuex'
 import { getFirstAccessibleChildPath } from '@/utils/vue'
 import defaultLogo from '@/assets/img/logo_text_white_spaced.png'
 import LogoSymbol from './LogoSymbol.vue'
-import { isDefaultInterfaceLogo } from '@/utils/interfaceLogo'
+import { hasInterfaceLogo, normalizeInterfaceLogo } from '@/utils/interfaceLogo'
 
 export default {
   name: 'SidebarLogo',
@@ -34,13 +34,13 @@ export default {
     ...mapGetters(['viewRoutes', 'publicSettings']),
     logoTextSrc() {
       const logoIndex = this.publicSettings.INTERFACE?.logo_index
-      return isDefaultInterfaceLogo(logoIndex) ? defaultLogo : logoIndex.trim()
+      return normalizeInterfaceLogo(logoIndex, defaultLogo)
     },
     isDefaultSymbol() {
-      return isDefaultInterfaceLogo(this.logoSrc)
+      return !hasInterfaceLogo(this.logoSrc)
     },
     logoSrc() {
-      return this.publicSettings.INTERFACE?.logo_logout?.trim()
+      return normalizeInterfaceLogo(this.publicSettings.INTERFACE?.logo_logout)
     }
   },
   methods: {

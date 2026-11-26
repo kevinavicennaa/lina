@@ -154,7 +154,7 @@
 <script>
 import LogoSymbol from '@/layout/components/NavLeft/LogoSymbol.vue'
 import SessionWarnings from './SessionWarnings.vue'
-import { isDefaultInterfaceLogo } from '@/utils/interfaceLogo'
+import { normalizeInterfaceLogo } from '@/utils/interfaceLogo'
 import { describeWebSessionError } from '@/utils/webSessionLock'
 import {
   webSessionLockState,
@@ -188,7 +188,7 @@ export default {
     },
     customLogo() {
       const logo = this.$store.getters.publicSettings.INTERFACE?.logo_logout
-      return isDefaultInterfaceLogo(logo) ? '' : logo.trim()
+      return normalizeInterfaceLogo(logo)
     },
     unconfirmed() {
       return !this.state.session?.locked

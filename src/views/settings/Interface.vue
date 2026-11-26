@@ -172,7 +172,7 @@ export default {
             }).then(() => {
               restoreInterface().then((res) => {
                 this.$message.success(res.success)
-                location.reload()
+                this.$store.dispatch('settings/getPublicSettings', false).catch(() => {})
               })
             })
           }.bind(this)
@@ -225,27 +225,45 @@ export default {
       }
       return themeConfig
     },
-    submitForm(values) {
+    async resolveUploadFile(key, value) {
+      if (this.files[key]) return this.files[key]
+      if (value instanceof File || value instanceof Blob) return value
+      // UploadField previews with a blob: URL. Recover the File if the
+      // fileChange event was missed, e.g. the value was set programmatically.
+      if (typeof value === 'string' && value.startsWith('blob:')) {
+        try {
+          const blob = await fetch(value).then((res) => res.blob())
+          const ext = blob.type.split('/')[1]?.replace('jpeg', 'jpg') || ''
+          return new File([blob], ext ? `${key}.${ext}` : key, { type: blob.type })
+        } catch {
+          return null
+        }
+      }
+      return null
+    },
+    async submitForm(values) {
       const form = new FormData()
       const imageKeys = ['favicon', 'login_image', 'logo_logout', 'logo_index']
       for (const key in values) {
-        let value
         if (imageKeys.includes(key)) {
-          value = this.files[key]
-        } else {
-          value = values[key]
+          const file = await this.resolveUploadFile(key, values[key])
+          if (file) form.append(key, file)
+          continue
         }
+        const value = values[key]
         if (value !== undefined) {
           form.append(key, value)
         }
       }
-      updateInterface(form)
-        .then((res) => {
-          this.$message.success(this.$tc('UpdateSuccessMsg'))
-        })
-        .catch((error) => {
-          this.$message.error(this.$tc('UpdateErrorMsg' + ' ' + error))
-        })
+      try {
+        await updateInterface(form)
+        this.$message.success(this.$tc('UpdateSuccessMsg'))
+        // Every logo component reads publicSettings from Vuex. Refresh it so
+        // the new image is visible without a full browser reload.
+        this.$store.dispatch('settings/getPublicSettings', false).catch(() => {})
+      } catch (error) {
+        this.$message.error(`${this.$tc('UpdateErrorMsg')} ${error}`)
+      }
     }
   }
 }

@@ -42,7 +42,7 @@
 
 <script>
 import defaultLogo from '@/assets/img/logo.svg'
-import { isDefaultInterfaceLogo } from '@/utils/interfaceLogo'
+import { normalizeInterfaceLogo } from '@/utils/interfaceLogo'
 import Dialog from '@/components/Dialog'
 import { mapGetters } from 'vuex'
 
@@ -125,7 +125,7 @@ export default {
     },
     logoSrc() {
       const logo = this.publicSettings.INTERFACE?.logo_logout
-      return isDefaultInterfaceLogo(logo) ? defaultLogo : logo.trim()
+      return normalizeInterfaceLogo(logo, defaultLogo)
     },
     hasXPack() {
       return this.publicSettings.XPACK_ENABLED

@@ -1,10 +1,15 @@
-/** Default core assets use local branding; uploaded media remains custom. */
-export function isDefaultInterfaceLogo(value) {
-  if (!value?.trim()) return true
-  try {
-    const pathname = new URL(value.trim(), 'https://jumpserver.invalid').pathname
-    return /\/static\/img\/(?:logo\.png|logo_white\.png|logo_text_white\.svg)$/.test(pathname)
-  } catch {
-    return false
-  }
+/**
+ * Logo URLs are owned by Core's interface settings. A blank value means
+ * "nothing configured", but every non-empty URL — including the built-in
+ * /static/img/... paths — must be rendered as-is. Guessing "default" from the
+ * URL used to swap in a bundled asset, which made server-side logo changes
+ * invisible in the UI.
+ */
+export function normalizeInterfaceLogo(value, fallback = '') {
+  const url = typeof value === 'string' ? value.trim() : ''
+  return url || fallback
+}
+
+export function hasInterfaceLogo(value) {
+  return Boolean(typeof value === 'string' ? value.trim() : '')
 }

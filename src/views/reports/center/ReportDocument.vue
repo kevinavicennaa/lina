@@ -248,7 +248,7 @@
 import { mapGetters } from 'vuex'
 import { Translation } from 'vue-i18n'
 import defaultLogo from '@/assets/img/logo_text_green.png'
-import { isDefaultInterfaceLogo } from '@/utils/interfaceLogo'
+import { normalizeInterfaceLogo } from '@/utils/interfaceLogo'
 import { reportEvidenceLink } from './api'
 import {
   isEmptyReportTable,
@@ -298,10 +298,8 @@ export default {
     },
     logo() {
       const source = this.snapshot?.branding?.logo ?? this.publicSettings.INTERFACE?.logo_index
-      if (!source || source === this.failedLogo || isDefaultInterfaceLogo(source)) {
-        return defaultLogo
-      }
-      return source
+      const logo = normalizeInterfaceLogo(source, defaultLogo)
+      return logo === this.failedLogo ? defaultLogo : logo
     },
     watermark() {
       const settings = this.publicSettings || {}
@@ -485,7 +483,8 @@ export default {
     },
     useDefaultLogo(event) {
       if (event.target.src === defaultLogo) return
-      this.failedLogo = this.snapshot?.branding?.logo ?? this.publicSettings.INTERFACE?.logo_index
+      const source = this.snapshot?.branding?.logo ?? this.publicSettings.INTERFACE?.logo_index
+      this.failedLogo = normalizeInterfaceLogo(source, defaultLogo)
     },
     jumpToPage() {
       const page = Number(this.pageInput)
